@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
+using System.Linq;
 
 namespace Sample
 {
@@ -7,7 +9,7 @@ namespace Sample
     /// </summary>
     public partial class MainWindow : Window
     {
-        Window window = null;
+        List<Window> windowList = new List<Window>();
         string xaml = "";
 
         public MainWindow()
@@ -17,13 +19,13 @@ namespace Sample
 
         private void Window_Loaded( object sender, RoutedEventArgs e )
         {
-            window = new Window1();
-            window.Show();
+            windowList.Add( new Window1() );
+            windowList.Last().Show();
         }
 
         private void Button_Click( object sender, RoutedEventArgs e )
         {
-            xaml = WpfObjectSerializer.WpfObjectSerializer.Serialize( window );
+            xaml = WpfObjectSerializer.WpfObjectSerializer.Serialize( windowList.Last() );
             MessageBox.Show( xaml );
         }
 
@@ -35,8 +37,17 @@ namespace Sample
                 return;
             }
 
-            window = WpfObjectSerializer.WpfObjectSerializer.Deserialize( xaml ) as Window;
-            window.Show();
+            var window = WpfObjectSerializer.WpfObjectSerializer.Deserialize( xaml ) as Window;
+            windowList.Add( window );
+            windowList.Last().Show();
+        }
+
+        private void Window_Closed( object sender, System.EventArgs e )
+        {
+            foreach( var item in windowList )
+            {
+                item.Close();
+            }
         }
     }
 }
